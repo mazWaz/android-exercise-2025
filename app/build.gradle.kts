@@ -64,6 +64,8 @@ dependencies {
 
     //Image Loading
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
 
     // Network
     implementation (libs.converter.kotlinx.serialization)

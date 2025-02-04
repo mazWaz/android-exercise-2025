@@ -25,7 +25,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -40,21 +39,22 @@ import com.example.myapplication.utils.K
 fun TopContent(
     modifier: Modifier = Modifier,
     movie: Movie,
-    onMovieClick:(id: Int) -> Unit
-){
-    val imageRequest = ImageRequest.Builder(LocalContext.current)
+    onMovieClick: (id: Int) -> Unit
+) {
+    val imgRequest = ImageRequest.Builder(LocalContext.current)
         .data("${K.BASE_IMAGE_URL}${movie.posterPath}")
         .crossfade(true)
         .build()
-
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onMovieClick(movie.id) }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onMovieClick(movie.id) }
     ) {
         AsyncImage(
-            model = imageRequest,
-            contentDescription =  null,
-            modifier = Modifier.matchParentSize(),
+            model = imgRequest,
+            contentDescription = null, // decorative element
+            modifier = Modifier
+                .matchParentSize(),
             contentScale = ContentScale.Crop,
             onError = {
                 it.result.throwable.printStackTrace()
@@ -63,7 +63,7 @@ fun TopContent(
         )
         MovieDetail(
             rating = movie.voteAverage,
-            tittle = movie.title,
+            title = movie.title,
             genre = movie.genreIds,
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -77,12 +77,10 @@ fun TopContent(
 fun MovieDetail(
     modifier: Modifier = Modifier,
     rating: Double,
-    tittle:String,
-    genre:List<String>
-){
-    Column(
-        modifier = modifier.padding(defaultPadding)
-    ) {
+    title: String,
+    genre: List<String>,
+) {
+    Column(modifier = modifier.padding(defaultPadding)) {
         MovieCard {
             Row(
                 modifier = Modifier.padding(4.dp),
@@ -100,7 +98,7 @@ fun MovieDetail(
         }
         Spacer(modifier = Modifier.height(itemSpacing))
         Text(
-            text = tittle,
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -112,8 +110,8 @@ fun MovieDetail(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                genre.forEachIndexed{ index, genreText ->
-                    if(index != 0){
+                genre.forEachIndexed { index, genreText ->
+                    if (index != 0) {
                         VerticalDivider(modifier = Modifier.height(16.dp))
                     }
                     Text(
@@ -123,24 +121,14 @@ fun MovieDetail(
                             .weight(1f),
                         maxLines = 1
                     )
-
-                    if(index != genre.lastIndex){
+                    // Show divider after all except the last item
+                    if (index != genre.lastIndex) {
                         VerticalDivider(modifier = Modifier.height(16.dp))
                     }
-
                 }
-
             }
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-private fun PrevMovieDetail(){
-    MovieDetail(
-        rating = 7.5,
-        tittle = "Doctor Nigga",
-        genre = listOf("Action", "Adventure")
-    )
+    }
+
 }

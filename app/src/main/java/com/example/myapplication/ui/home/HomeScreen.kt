@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.myapplication.ui.components.LoadingView
+import com.example.myapplication.ui.home.components.BodyContent
 import com.example.myapplication.ui.home.components.TopContent
 import kotlinx.coroutines.delay
 
@@ -43,27 +45,25 @@ fun HomeScreen(
     val state by homeViewModel.homeState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = {state.discoveryMovie.size}
+        pageCount = { state.discoveryMovie.size }
     )
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-
-    LaunchedEffect(key1 =  pagerState.currentPage) {
-        if(isDragged){
+    LaunchedEffect(key1 = pagerState.currentPage) {
+        if (isDragged) {
             isAutoScrolling = false
-        }else{
+        } else {
             isAutoScrolling = true
             delay(5000)
-            with(pagerState){
-                val target = if(currentPage < state.discoveryMovie.size -1 ) currentPage + 1 else 0
+            with(pagerState) {
+                val target = if (currentPage < state.discoveryMovie.size - 1) currentPage + 1 else 0
                 scrollToPage(target)
             }
         }
     }
-
-    Box(modifier = Modifier){
+    Box(modifier = modifier) {
         AnimatedVisibility(visible = state.error != null) {
             Text(
-                text =  state.error?: "Unknown Error",
+                text = state.error ?: "unknown error",
                 color = MaterialTheme.colorScheme.error,
                 maxLines = 2
             )
@@ -73,42 +73,51 @@ fun HomeScreen(
                 val boxHeight = maxHeight
                 val topItemHeight = boxHeight * .45f
                 val bodyItemHeight = boxHeight * .55f
-
                 HorizontalPager(
                     state = pagerState,
                     contentPadding = PaddingValues(defaultPadding),
                     pageSize = PageSize.Fill,
                     pageSpacing = itemSpacing
-                    ) { page ->
-                    if(isAutoScrolling){
+                ) { page ->
+                    if (isAutoScrolling) {
                         AnimatedContent(
                             targetState = page,
-                            label = ""
+                            label = "",
                         ) { index ->
                             TopContent(
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .heightIn(min = topItemHeight),
                                 movie = state.discoveryMovie[index],
-                                onMovieClick ={
+                                onMovieClick = {
                                     onMovieClick(it)
                                 }
                             )
                         }
-                    }else{
+                    } else {
                         TopContent(
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
                                 .heightIn(min = topItemHeight),
                             movie = state.discoveryMovie[page],
-                            onMovieClick ={
+                            onMovieClick = {
                                 onMovieClick(it)
                             }
                         )
                     }
                 }
+                BodyContent(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .heightIn(max = bodyItemHeight),
+                    discoverMovies = state.discoveryMovie,
+                    trendingMovies = state.trendingMovie,
+                    onMovieClick = onMovieClick
+                )
+
             }
         }
     }
+    LoadingView(isLoading = state.isLoading)
 
 }
